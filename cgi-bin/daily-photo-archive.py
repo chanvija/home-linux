@@ -9,33 +9,24 @@ def get_db_data(db_file):
     
     conn = sqlite3.connect(db_file)
     myCursor = conn.cursor()
-    myCursor.execute('''SELECT * FROM collection WHERE day = strftime('%d','now') AND month = strftime('%m','now') AND type = "photo"''')
+    myCursor.execute('''SELECT * FROM collection WHERE day = strftime('%d','now') AND month = strftime('%m','now') AND type = "photo" ORDER by year,filename''')
     ret_list = myCursor.fetchall()
     conn.close()
     
     return ret_list
+
+def get_my_ip():
+    interface = subprocess.getoutput("ip -o route get 142.250.77.164 | perl -nle 'if ( /dev\s+(\S+)/ ) {print $1}'")
+    ip = subprocess.getoutput(f'ifconfig {interface} | egrep -o "inet \S+" | cut -d" " -f 2')
+    return(ip)
 
 def open_html_header():
     print("Content-type:text/html\r\n\r\n")
     print('<html>')
     print('<head>')
     print('<title>CDJ Daily Album</title>')
+    print('<link rel="stylesheet" href="../css/cdj-1.css">')
     print('</head>')
-
-def open_html_body():
-    print('<body>')
-
-def close_html_body():
-    print('</body>')
-
-def close_html_header():
-    print('</html>')
-
-def print_html(msg):
-    print(f'<p>{msg}</p>')
-    
-def print_href(text,url):
-    print(f'<p><a href="{url}">{text}</a></p>')
 
 def get_db_file(archive_directory):
     cmd = 'ls -1 ' + archive_directory + '/*.db'
@@ -68,10 +59,9 @@ if __name__ == '__main__':
     if args.archive_directory:
         ar_directory = args.archive_directory
     else:
-        # ar_directory = "/Volumes/chanvija-time-machine/pictures-archive/"
-        ar_directory = "../../pictures-archive/"
-        ar_directory_path = "../"
-        ar_directory = "pictures-archive/"
+        #relative to cgi-bin directory
+        db_directory = "../html/pictures/"
+        picture_directory = "pictures/"
     
     if args.debug:
         #logging.basicConfig(level=logging.DEBUG, format=log_format, datefmt=log_time_format)
@@ -81,22 +71,51 @@ if __name__ == '__main__':
         pass
         
     if not args.db_file:
-        db_file = get_db_file(ar_directory_path + ar_directory)
+        db_file = get_db_file(db_directory)
     else:
         db_file = args.db_file
     
     db_list = get_db_data(db_file)
-
-    open_html_header()
-    open_html_body()
+    ip = get_my_ip()
     
-    try:
-        for files in db_list:
-            #logging.info(ar_directory + '/' + files[0])
-            filename = ar_directory + files[0]
-            print_href(files[0].split('/')[-1], f"show_picture.py?filename={filename}")
-    except e:
-        print_html(e)
-    close_html_body()
-    close_html_header()
+    print("Content-type:text/html\r\n\r\n")
+    print('''
+    <html>
+        <head>
+            <link rel="stylesheet" href="../css/cdj-1.css" type="text/css">
+            <title>
+                CDJ Daily Reminisce
+            </title>
+            <script language="JavaScript" type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+            <script language="JavaScript" type="text/javascript" src="../js/cdj-funcs.js"></script>
+        </head>
+        <body>
+            <div id=left>
+                <ul class="background"> ''')
+            
+    year_done = []
+    
+    for files in db_list:
+        #logging.info(ar_directory + '/' + files[0])
+        if files[5] != "photo":
+            #skip video files due to size.  
+            continue
+        
+        filename = f"http://{ip}/{picture_directory}{files[0]}"
+        if files[1] not in year_done: 
+            print(f"<h1>{files[1]}</h1>")
+            year_done.append(files[1])
+        href_string = ".".join(files[0].split('/')[-1].split(".")[:-1])
+        # print_href(href_string, f"{filename}")
+        
+        print(f'<li> <a href="#" onclick=show_picture("{filename}")>{files[0]}</a></li>')
 
+    print('''
+                </ul>
+            </div>
+            <div class="photo_area" id=right>
+                Select a photo  on the left
+            </div>
+
+        </body>
+    </html>''')

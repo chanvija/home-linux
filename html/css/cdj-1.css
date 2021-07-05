@@ -1,0 +1,46 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.background {
+    background: black;
+    background-blend-mode: darken;
+    background-size: cover;
+}
+
+li a {
+    text-decoration: none;
+    color: white;
+    padding: 8px 16px;
+    display: block;
+}	
+
+li a:hover {
+    color: grey;
+}	
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 15%;
+    background-color: #f1f1f1;
+    position: fixed;
+    height: 100%;
+    overflow: auto;
+}	
+.text {
+    font-size: larger;
+    border: black;
+}
+.photo_area {
+    margin-left:15%;
+    padding:10px 16px;
+    max-width: 100%;
+    max-height: auto;
+    object-fit: contain;
+}
+h1 {
+    color: white;
+}
