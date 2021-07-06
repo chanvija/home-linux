@@ -9,7 +9,7 @@ def get_db_data(db_file):
     
     conn = sqlite3.connect(db_file)
     myCursor = conn.cursor()
-    myCursor.execute('''SELECT * FROM collection WHERE day = strftime('%d','now') AND month = strftime('%m','now') AND type = "photo" ORDER by year,filename''')
+    myCursor.execute('''SELECT * FROM collection WHERE day = strftime('%d','now', 'localtime') AND month = strftime('%m','now', 'localtime') AND type = "photo" ORDER by year,filename''')
     ret_list = myCursor.fetchall()
     conn.close()
     
@@ -107,8 +107,8 @@ if __name__ == '__main__':
             year_done.append(files[1])
         href_string = ".".join(files[0].split('/')[-1].split(".")[:-1])
         # print_href(href_string, f"{filename}")
-        
-        print(f'<li> <a href="#" onclick=show_picture("{filename}")>{files[0]}</a></li>')
+        t = files[0].split("/")[2]
+        print(f'<li> <a href="#" onclick=show_picture("{filename}")>{t}</a></li>')
 
     print('''
                 </ul>
