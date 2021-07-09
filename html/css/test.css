@@ -1,95 +1,53 @@
-* {
-    margin: 0;
-    padding: 0;
-}
-
-.background {
-    background: black;
-    background-blend-mode: darken;
-    background-size: cover;
-    width: 300px;
-    height: 820x;
-}
-
-li a {
-    text-decoration: none;
+a:link {
     color: white;
-    padding: 8px 16px;
-    display: block;
-}	
-
-li a:hover {
+}
+a:visited {
+    color: white;
+}
+a:hover {
     color: red;
 }
-ul {
-    list-style-type:none;
-    margin: 0;
-    padding: 0;
-    width: 250px;
-    background-color: #f1f1f1;
-    position: fixed;
-    height: 820px;
-    overflow: auto;
-}	
-.text {
-    font-size: larger;
-    border: black;
+a:active {
+    color: goldenrod;
 }
-h1 {
-    color: white;
+.grid { 
+    display: grid;
+    grid-template-columns: 300px 100px 1200px 100px 200px;
+    grid-template-rows: 820px 100px;
+    grid-template-areas: 
+    "s1 s5 s2 s6 s4"
+    "s1 s7 s3 s8 s4"
 }
-.container_div {
-    background-color: darkgrey;
-    position: relative;
-    height: 870px;
-    width: 1920px;
-}
-.top_div {
-    text-align:center;
-    position: relative;
-    left: 0px;
-    height: 820px;
-    width: 1920px;
-    background-color: blue; 
-}
-.bottom_div {
-    position: absolute;
-    left: 0px;
-    bottom: 0px;
-    height: 50px;
-    width: 1920px;
-    background-color:chocolate;
-    text-align: center;
-    vertical-align: middle;
-}
-.left {
-    position: absolute;
-    left: 0px;
-    height: 820px;
-    width: 300px;
-    background-color: yellow;
-}
-.photo_area {
-    position: absolute;
-    left: 300px;
-    right: 0px;
-    height: 820px;
-    width: 1400px;
+.s1 { 
+    grid-area: s1;
     background-color: black;
-    color: red;
-    border-width: 2px;
-    border: cornsilk;
 }
-.tag_area {
-    position: absolute;
-    left: 1700px;
-    right: 0px;
-    height: 820px;
-    width: 220px;
-    background-color:darkgray;
-    color: red;
-    border: darkmagenta;
-    border-width: 2px;
-    text-align: center;
-    vertical-align: middle;
+
+.s2 { 
+    grid-area: s2;
+    background-color: black;
+}
+.s3 { 
+    grid-area: s3;
+    background-color: black;
+}
+.s4 {
+    grid-area: s4;
+    background-color: black;
+}
+.s5 {
+    grid-area: s5;
+    background-color: grey;
+}
+.s6 {
+    grid-area: s6;
+    background-color: grey;
+}
+.s7 {
+    grid-area: s7;
+    background-color: black;
+}
+.s8 {
+    grid-area: s8;
+    background-color: black;
 }

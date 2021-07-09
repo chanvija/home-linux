@@ -97,8 +97,9 @@ if __name__ == '__main__':
     
     for files in db_list:
         #logging.info(ar_directory + '/' + files[0])
-        if files[5] != "photo":
-            #skip video files due to size.  
+        if (files[5] != "photo") or \
+           (re.match("skip", files[4])):
+            #skip video files due to size and those with tag "skip".  
             continue
         
         filename = f"http://{ip}/{picture_directory}{files[0]}"

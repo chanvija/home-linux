@@ -1,6 +1,8 @@
 <!DOCTYPE html >
 <html>
   <head>
+    <script language="JavaScript" type="text/javascript" src="../../jquery-3.3.1.min.js"></script>
+    <script language="JavaScript" type="text/javascript" src="js/cdj-funcs.js"></script>
     <style>
         .container_div {
             background-color: darkgrey;
@@ -61,8 +63,12 @@
             </div>
             <div id="tag" class="tag">
                 Add a tag to this photo <br> 
-                <input type="text" id="fname" name="fname"><br>
-                <button type="button">Add tag</button> 
+                <form action = "http://localhost:8081/test_db" method = "post">
+                    <p><input type=hidden name="filename" value="2000/2000-Feb/DSC_5455.JPG" /></p>
+                    <input type="text" id="new_tag" name="new_tag" width="30px"><br>
+                    <p><input type = "submit" value = "Add tag" /></p> 
+                </form>
+
             </div>
         </div>
         <div id="bottom" class="bottom_div"> 
