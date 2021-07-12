@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 db_file = "/usr/local/var/www/home-linux-www/html/cdj-album.db"
 if not os.path.isfile(db_file):
-    db_file = "/var/www/html/pictures/cdj-album.db"
+    db_file = "/var/www/html/pictures-archive/cdj-album.db"
 
 @app.route('/get_archive_directory',methods = ['POST', 'OPTIONS'])
 def get_archive_directory():
