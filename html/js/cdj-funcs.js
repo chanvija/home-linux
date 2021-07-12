@@ -103,6 +103,19 @@ function update_tag()
 
 function changeImg(query_type, tag, count, offset)
 {
+    
+    var u = "http://192.168.1.10:8081/get_archive_directory";
+    var x = new XMLHttpRequest();
+    x.open("POST", u, false)
+    x.setRequestHeader('Access-Control-Allow-Headers', '*');
+    x.setRequestHeader("Accept", "application/json");
+    x.setRequestHeader("Content-Type", "application/json");
+    x.send()
+    
+    d = JSON.parse(x.responseText);
+    console.log(d)
+    var path_prefix = d['dir_prefix']
+
     var url = "http://192.168.1.10:8081/get_row";
     var xhr = new XMLHttpRequest();
     xhr.open("POST", url, true);
@@ -133,7 +146,7 @@ function changeImg(query_type, tag, count, offset)
     xhr.onload = function() {
         var data = JSON.parse(this.responseText);
         console.log(data);
-        path_prefix = "../../pictures-archive/";
+        
         prev = "#";
         next = "#";
 

@@ -9,6 +9,23 @@ db_file = "/usr/local/var/www/home-linux-www/html/cdj-album.db"
 if not os.path.isfile(db_file):
     db_file = "/var/www/html/pictures/cdj-album.db"
 
+@app.route('/get_archive_directory',methods = ['POST', 'OPTIONS'])
+def get_archive_directory():
+    if request.method == "OPTIONS": # CORS preflight
+        response = make_response()
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "*")
+        return(response)
+    elif request.method == 'POST':
+        dir_prefix = "../../pictures-archive/"
+        if not os.path.isdir(dir_prefix):
+            dir_prefix = "pictures-archive/"
+        
+        print(f"dir_path = {dir_prefix}")
+        dir_prefix = jsonify(dir_prefix=dir_prefix)
+        dir_prefix.headers.add("Access-Control-Allow-Origin", "*") 
+        return(dir_prefix)
 
 @app.route('/update_file',methods = ['POST', 'OPTIONS'])
 def update_file():
