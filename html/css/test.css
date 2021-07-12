@@ -1,3 +1,45 @@
+html {
+    background: #000;
+    margin: 0;
+    height: 100%;
+}
+.date_container {
+    width: 1000px;
+    margin: auto;
+    color: #FFF;
+    font-size: 25px;
+}
+
+.date_container h3 {
+    font-size: 20px;
+}
+
+#date_content {
+    border: dashed 2px #CCC;
+    padding: 10px;
+}
+
+#date_content p {
+    color: aquamarine;
+    margin: 5px;
+    padding: 5px;
+}
+
+#date_content > p {
+    color: orange;
+    margin: 5px;
+}
+#date_content #message
+{
+    color:aquamarine;
+    font-size:18px;
+}
+
+.img {
+    max-height: 820px;
+    max-width: 1200px;
+    object-fit: cover;
+}
 a:link {
     color: white;
 }
@@ -10,13 +52,42 @@ a:hover {
 a:active {
     color: goldenrod;
 }
+.new_tag {
+    background-color: black;
+    color: white;
+    height: 920px;
+    border-color: black;
+}
+.text_box {
+    background-color: white;
+    border: red 5px;
+    width: 100px;
+}
+.message_box {
+    background-color: black;
+    border: black 0px;
+    border-bottom: black;
+    width: 300px;
+    color: red
+}
+
+.hide { 
+    position: absolute; 
+    top: -1px; 
+    left: -1px; 
+    width: 1px; 
+    height: 1px; 
+}
+
 .grid { 
     display: grid;
-    grid-template-columns: 300px 100px 1200px 100px 200px;
+    top: 0%;
+    bottom: 0%;
+    grid-template-columns: 180px 40px 1300px 40px;
     grid-template-rows: 820px 100px;
     grid-template-areas: 
-    "s1 s5 s2 s6 s4"
-    "s1 s7 s3 s8 s4"
+    "s1 s5 s2 s6"
+    "s1 s7 s3 s8"
 }
 .s1 { 
     grid-area: s1;
@@ -34,14 +105,15 @@ a:active {
 .s4 {
     grid-area: s4;
     background-color: black;
+    color: white;
 }
 .s5 {
     grid-area: s5;
-    background-color: grey;
+    background-color: black;
 }
 .s6 {
     grid-area: s6;
-    background-color: grey;
+    background-color: black;
 }
 .s7 {
     grid-area: s7;
@@ -49,5 +121,9 @@ a:active {
 }
 .s8 {
     grid-area: s8;
+    background-color: black;
+}
+.s9 {
+    grid-area: s9;
     background-color: black;
 }

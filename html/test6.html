@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="css/test.css" type="text/css">     
+        <script>
+            function update_with_new_tags() {
+                // alert("clearing")
+            }
+        </script>   
+    </head>
+    <body>
+        <iframe name="hiddenFrame" id="hiddenFrame" class="hid" onload=update_with_new_tags()></iframe>
+        <div id="new_tag_div" class="new_tag">                
+            Update tags for this picture
+            <form action = "http://localhost:8081/update_file" method = "post" name="update_tag" target="hiddenFrame">
+                <p><input type = "hidden" name="filter_type" value="file_single" /></p>
+                <p><label>Filename : </label><input readonly name="filter" value="" id="filter" STYLE="color: white; width: 200px; background-color: black; border-color: black; border-width: 0px; border-bottom: black;" /></p>
+                <p><label>Current tags : </label><input readonly name="current_tag" value="" id="current_tag"  STYLE="color: white; width: 200px; background-color: black; border-color: black; border-width: 0px; border-bottom: black;" /></p>
+                <p><label float="left"> New Tag </label><input type = "text" name = "new_tag" value="" id="new_tag" class="text_box"/></p>
+                <p><input type = "submit" value = "submit"/></p>
+            </form>
+        </div>
+    </body>
+</html>
