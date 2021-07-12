@@ -7,26 +7,6 @@
         <script language="JavaScript" type="text/javascript" src="js/cdj-funcs.js"></script>
         <link rel="stylesheet" href="css/test.css" type="text/css">
         <link href='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css'>
-        <script>
-            function clear_tag_text() {
-                document.getElementById('new_tag').value = '';
-            }
-            function change_image(source) {
-                if (source == "datepicker") {
-                    date_select = document.getElementById('datepicker').value
-                    changeImg('date', date_select, '3', '0')
-                } else if (source == "specific_tag") {
-                    tag_select = document.getElementById('specific_tag').value
-                    changeImg('default', tag_select, '3', '0')
-                }
-            }
-        </script>
-        <style>
-            .ui-datepicker-calendar {
-                display: none;
-            }
-        </style>
-
     </head>
     <body>
         <div class="grid">
@@ -52,10 +32,13 @@
             <div class="g s3" id="img_info"></div>
 
             <div class="g s5" id="left">
-                <a href="#", id=prev>Prev</a>
+                <!--- <a href="#", id=prev>Prev</a> --->
+                <button type="button" title="Next" id="prev_button" class="button">Prev</button>
+
             </div>
             <div class="g s6" id="right">
-                <a href="#", id=next>Next</a>
+                <!--- <a href="#", id=next>Next</a> --->
+                <button type="button" title="Next" id="next_button" class="button">Next</button>
             </div>
             <div class="g s7">
             </div>

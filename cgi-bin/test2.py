@@ -6,6 +6,9 @@ import json
 app = Flask(__name__)
 
 db_file = "/usr/local/var/www/home-linux-www/html/cdj-album.db"
+if not os.path.isfile(db_file):
+    db_file = "/var/www/html/pictures/cdj-album.db"
+
 
 @app.route('/update_file',methods = ['POST', 'OPTIONS'])
 def update_file():

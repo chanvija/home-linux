@@ -10,6 +10,18 @@ function show_picture(img)
     }); 
     // $("#right").load("2.html")   
 }
+function clear_tag_text() {
+    document.getElementById('new_tag').value = '';
+}
+function change_image(source) {
+    if (source == "datepicker") {
+        date_select = document.getElementById('datepicker').value
+        changeImg('date', date_select, '3', '0')
+    } else if (source == "specific_tag") {
+        tag_select = document.getElementById('specific_tag').value
+        changeImg('default', tag_select, '3', '0')
+    }
+}
 function test_show_picture(img,tags)
 {
     $("<img/>").attr("src", img).on("load",function(){
@@ -164,8 +176,11 @@ function changeImg(query_type, tag, count, offset)
                 }
                 new_next_offset = Number(offset) + Number("1");
 
-                $("#prev").attr("onclick", 'changeImg("' + query_type + '", "' + tag + '", ' + count + ', ' + new_prev_offset + ")")
-                $("#next").attr("onclick", 'changeImg("' + query_type + '", "' + tag + '", ' + count + ', ' + new_next_offset + ")")
+                // $("#prev").attr("onclick", 'changeImg("' + query_type + '", "' + tag + '", ' + count + ', ' + new_prev_offset + ")")
+                // $("#next").attr("onclick", 'changeImg("' + query_type + '", "' + tag + '", ' + count + ', ' + new_next_offset + ")")
+                $("#prev_button").attr("onclick", 'changeImg("' + query_type + '", "' + tag + '", ' + count + ', ' + new_prev_offset + ")")
+                $("#next_button").attr("onclick", 'changeImg("' + query_type + '", "' + tag + '", ' + count + ', ' + new_next_offset + ")")
+
                 parent.right_frame.document.getElementById('filter').value = data[0][0]
                 parent.right_frame.document.getElementById('current_tag').value = data[0][1]
                 parent.right_frame.document.getElementById('new_tag').value = ""

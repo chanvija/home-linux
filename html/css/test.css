@@ -70,6 +70,10 @@ a:active {
     width: 300px;
     color: red
 }
+.button {
+    background-color: bisque;
+    height: 820px;
+}
 
 .hide { 
     position: absolute; 
@@ -78,7 +82,9 @@ a:active {
     width: 1px; 
     height: 1px; 
 }
-
+.ui-datepicker-calendar {
+    display: none;
+}
 .grid { 
     display: grid;
     top: 0%;
