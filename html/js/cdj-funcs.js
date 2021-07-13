@@ -188,6 +188,9 @@ function changeImg(query_type, tag, count, offset)
                     new_prev_offset = 0;
                 }
                 new_next_offset = Number(offset) + Number("1");
+                if (data.length == 1) {
+                    new_next_offset = Number("0");
+                }
 
                 // $("#prev").attr("onclick", 'changeImg("' + query_type + '", "' + tag + '", ' + count + ', ' + new_prev_offset + ")")
                 // $("#next").attr("onclick", 'changeImg("' + query_type + '", "' + tag + '", ' + count + ', ' + new_next_offset + ")")

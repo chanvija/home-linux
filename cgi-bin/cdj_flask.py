@@ -87,7 +87,6 @@ def get_row():
         myCursor = conn.cursor()
         if tag == "today":
             cmd = f'SELECT filename,tags FROM collection WHERE day = strftime("%d","now", "localtime") AND month = strftime("%m","now", "localtime") AND type LIKE "%photo%" ORDER by year,filename LIMIT {count} OFFSET {offset}'
-            cmd = f'SELECT filename,tags FROM collection WHERE day = "10" AND month = strftime("%m","now", "localtime") AND type LIKE "%photo%" ORDER by year,filename LIMIT {count} OFFSET {offset}'
         elif query_type == "date":
             yy = data['year']
             mm = data['month'].lower()
