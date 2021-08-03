@@ -8,7 +8,6 @@ def main():
     db_file = "/usr/local/var/www/home-linux-www/html/cdj-album.db"
     conn = sqlite3.connect(db_file)
     myCursor = conn.cursor()
-
     for yy in range(2001,2022):
         print(yy)
         myCursor.execute('SELECT filename,tags FROM collection where year = "' + str(yy) + '"')
