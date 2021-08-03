@@ -9,6 +9,32 @@ db_file = "/usr/local/var/www/home-linux-www/html/cdj-album.db"
 if not os.path.isfile(db_file):
     db_file = "/var/www/html/pictures-archive/cdj-album.db"
 
+@app.route('/get_unique_tags',methods = ['GET', 'POST', 'OPTIONS'])
+def get_unique_tags():
+    if request.method == "OPTIONS": # CORS preflight
+        response = make_response()
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add('Access-Control-Allow-Headers', "*")
+        response.headers.add('Access-Control-Allow-Methods', "*")
+        return(response)
+    elif ( request.method == 'POST' or request.method == "GET" ):
+        data = request.get_json()    
+        conn = sqlite3.connect(db_file)
+        myCursor = conn.cursor()
+        myCursor.execute('SELECT DISTINCT tags FROM collection')
+        temp = myCursor.fetchall()
+        tag_list = {}
+        tag_list['tags'] = []
+        for t in temp:
+            for t1 in t[0].split(","):
+                if not t1 in tag_list['tags']:
+                    tag_list['tags'].append(t1)
+
+        tag_list['tags'] = sorted(tag_list['tags'])
+
+        print(f"Unique tag list : {tag_list}")
+        return(tag_list)
+
 @app.route('/get_archive_directory',methods = ['POST', 'OPTIONS'])
 def get_archive_directory():
     if request.method == "OPTIONS": # CORS preflight
@@ -86,23 +112,34 @@ def get_row():
         conn = sqlite3.connect(db_file)
         myCursor = conn.cursor()
         if tag == "today":
-            cmd = f'SELECT filename,tags FROM collection WHERE day = strftime("%d","now", "localtime") AND month = strftime("%m","now", "localtime") AND type LIKE "%photo%" ORDER by year,filename LIMIT {count} OFFSET {offset}'
+            cmd = f'SELECT filename,tags FROM collection WHERE day = strftime("%d","now", "localtime") AND month = strftime("%m","now", "localtime") AND type LIKE "%photo%" and tags NOT LIKE "%delete%" ORDER by year,filename LIMIT {count} OFFSET {offset}'
+            cmd2 = f'SELECT count(*) FROM collection WHERE day = strftime("%d","now", "localtime") AND month = strftime("%m","now", "localtime") AND type LIKE "%photo%" and tags NOT LIKE "%delete%" ORDER by year,filename'
+
         elif query_type == "date":
             yy = data['year']
             mm = data['month'].lower()
-            cmd = f'SELECT filename,tags FROM collection WHERE year = {yy} AND tags LIKE "%{mm}%" AND type LIKE "%photo%" ORDER by year,filename LIMIT {count} OFFSET {offset}'    
+            cmd = f'SELECT filename,tags FROM collection WHERE year = {yy} AND tags LIKE "%{mm}%" AND type LIKE "%photo%" and tags NOT LIKE "%delete%" ORDER by year,filename LIMIT {count} OFFSET {offset}'    
+            cmd2 = f'SELECT count(*) FROM collection WHERE year = {yy} AND tags LIKE "%{mm}%" AND type LIKE "%photo%" and tags NOT LIKE "%delete%" ORDER by year,filename'    
+
         else:
-            cmd = f'SELECT filename,tags FROM collection where tags LIKE "%{tag}%" AND type LIKE "%photo%" LIMIT {count}  OFFSET {offset}'
+            cmd = f'SELECT filename,tags FROM collection where tags LIKE "%{tag}%" AND type LIKE "%photo%" and tags NOT LIKE "%delete%" LIMIT {count}  OFFSET {offset}'
+            cmd2 = f'SELECT count(*) FROM collection where tags LIKE "%{tag}%" AND type LIKE "%photo%" and tags NOT LIKE "%delete%"'
         print(cmd)
         myCursor.execute(cmd)
         temp = myCursor.fetchall()
         print(f"... rows : {temp}")
+        
+        print(cmd2)
+        myCursor.execute(cmd2)
+        temp2 = myCursor.fetchall()
+        print(f"... row_count : {temp2[0][0]}")
+        
         file_list = []
         for t in temp:
             file_list.append((t[0], t[1]))
         conn.close()
         print(f"..{file_list}..")
-        retval = jsonify(file_list)
+        retval = jsonify(file_list=file_list, row_count=temp2[0][0])
         retval.headers.add("Access-Control-Allow-Origin", "*") 
         return(retval)
 

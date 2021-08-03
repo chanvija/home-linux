@@ -150,8 +150,8 @@ function changeImg(query_type, tag, count, offset)
         prev = "#";
         next = "#";
 
-        if (data.length > 0) {
-            img = path_prefix + data[0][0];
+        if (data['row_count'] > 0) {
+            img = path_prefix + data['file_list'][0][0];
             $("<img/>").attr("src", img).on("load",function(){     
                 s = {w:this.width, h:this.height};   
 
@@ -185,10 +185,10 @@ function changeImg(query_type, tag, count, offset)
 
                 new_prev_offset = Number(offset) - Number("1");
                 if (new_prev_offset < 0) {
-                    new_prev_offset = 0;
+                    new_prev_offset = data['row_count'] - 1;
                 }
                 new_next_offset = Number(offset) + Number("1");
-                if (data.length == 1) {
+                if (new_next_offset == data['row_count']) {
                     new_next_offset = Number("0");
                 }
 
@@ -197,8 +197,8 @@ function changeImg(query_type, tag, count, offset)
                 $("#prev_button").attr("onclick", 'changeImg("' + query_type + '", "' + tag + '", ' + count + ', ' + new_prev_offset + ")")
                 $("#next_button").attr("onclick", 'changeImg("' + query_type + '", "' + tag + '", ' + count + ', ' + new_next_offset + ")")
 
-                parent.right_frame.document.getElementById('filter').value = data[0][0]
-                parent.right_frame.document.getElementById('current_tag').value = data[0][1]
+                parent.right_frame.document.getElementById('filter').value = data['file_list'][0][0]
+                parent.right_frame.document.getElementById('current_tag').value = data['file_list'][0][1]
                 parent.right_frame.document.getElementById('new_tag').value = ""
                 parent.right_frame.document.getElementById('message').value = ""
                 parent.right_frame.document.getElementById('rotate_value').value = "90"
