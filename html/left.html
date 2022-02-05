@@ -1,31 +1,38 @@
 <!DOCTYPE html >
 <html>
     <head>
+        <meta charset="utf-8">
+        <meta http-equiv="Pragma" content="no-cache">
         <script language="JavaScript" type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script language="JavaScript" type="text/javascript" src="js/jquery.rotate.1-1.js"></script>
         <script src='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js'></script>
         <script language="JavaScript" type="text/javascript" src="js/cdj-funcs.js"></script>
         <link rel="stylesheet" href="css/cdj.css" type="text/css">
+        <link href="css/font-awesome.min.css" type="text/css">
         <link href='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css'>
     </head>
     <body>
         <div class="grid">
             <div class="g s1">
                 <a href="#", onclick="changeImg('default', 'today', '3', '0');">On this day</a> <br>
+                <input type="checkbox" id="show_deleted" name="show_deleted" value="show_deleted">
+                <label for "show_deleted" style="color: white; font-size: 18px; text-align: left;">show deleted</label>
                 <br><br><br>
-                <div class="tag_container" style="color: white; font-size: 18px; text-align: center;">
-                        Give a photo tag of choice
-                        <p> <input type="text" id="specific_tag" style="width: 120px; border-left: 0px; align-self: auto;">
-                            <button id="button1" onclick="change_image('specific_tag')" style="color: black;">Click</button>
+                <div class="tag_container" style="color: white; font-size: 18px; text-align: left;">
+                        <p> 
+                            <label for="specific_tag">Choose a photo tag</label>
+                            <select name="specific_tag" id="specific_tag" onchange="change_image('specific_tag')">
+                                <option value="" selected>Select one</option>
+                            </select>
                         </p>
                 </div>
-                <div id="date_content" style="color: white; font-size: 18px; text-align: center; border: none;">
-                    Give a year and month of choice
-                    <p> <input type="text" id="datepicker" style="width: 120px; border-left: 0px; align-self: auto;">
-                        <button id="button1" onclick="change_image('datepicker')" style="color: black;">Click</button>
-                    </p>
+                <div>
+                    <label for="specific_date" style="color: white; font-size: 18px; text-align: left;">Choose a date</label>
+                    <input type="date" id="specific_date" name="specific_date" onchange="change_image('datepicker')">
+                    <br>
+                    <input type="checkbox" id="ignore_year" name="ignore_year" value="ignore" checked>
+                    <label for="ignore_year" style="color: white; font-size: 18px; text-align: left;">Ignore year</label>
                 </div>
-
             </div>
             <div class="g s2" id="show_image"></div>
             <div class="g s3" id="img_info"></div>
@@ -45,29 +52,32 @@
        </div>
        <script>
             $(document).ready(function () {
-                $('#datepicker').datepicker({
-                    changeMonth: true,
-                    changeYear: true,
-                    dateFormat: 'MM yy',
-                    yearRange: '2000:2100',
 
-                    onClose: function() {
-                        var iMonth = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
-                        var iYear = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
-                        $(this).datepicker('setDate', new Date(iYear, iMonth, 1));
-                    },
+                var tag_dropdown = document.getElementById('specific_tag')
+                var url = "http://192.168.1.13:8081/get_unique_tags";
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", url, true);
 
-                    beforeShow: function() {
-                    if ((selDate = $(this).val()).length > 0) 
-                    {
-                        iYear = selDate.substring(selDate.length - 4, selDate.length);
-                        iMonth = jQuery.inArray(selDate.substring(0, selDate.length - 5), 
-                                $(this).datepicker('option', 'monthNames'));
-                        $(this).datepicker('option', 'defaultDate', new Date(iYear, iMonth, 1));
-                        $(this).datepicker('setDate', new Date(iYear, iMonth, 1));
+                xhr.setRequestHeader("Access-Control-Allow-Headers", "*");
+                xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
+                xhr.setRequestHeader("Accept", "application/json");
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.send();
+                xhr.onload = function() {
+                    var data = JSON.parse(this.responseText);
+                    if (data['error'] == null) {
+                        tag_list = String(data["tag_list"]);
+                    } else {
+                        tag_list = "";
                     }
+                    var tags = tag_list.split(",");
+                    for (var i = 0;i <tags.length;i++) {
+                        var option = document.createElement("option")
+                        option.innerHTML = tags[i]
+                        option.value = tags[i]
+                        tag_dropdown.appendChild(option)
                     }
-                });
+                };
             });
         </script>
    </body>

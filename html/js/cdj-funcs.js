@@ -15,11 +15,16 @@ function clear_tag_text() {
 }
 function change_image(source) {
     if (source == "datepicker") {
-        date_select = document.getElementById('datepicker').value
-        changeImg('date', date_select, '3', '0')
+        date_select = document.getElementById('specific_date').value
+        if (document.getElementById('ignore_year').checked) {
+            checked = 'true'
+        } else {
+            checked = 'false'
+        }
+        changeImg('date', date_select, '3', '0', checked)
     } else if (source == "specific_tag") {
         tag_select = document.getElementById('specific_tag').value
-        changeImg('default', tag_select, '3', '0')
+        changeImg('default', tag_select, '3', '0', 'false')
     }
 }
 function test_show_picture(img,tags)
@@ -70,15 +75,27 @@ function rotate_image()
     parent.right_frame.document.getElementById("rotate_value").value = x;
 }
 
+function update_tag_next(query_type, tag, count, offset)
+{
+	update_tag()
+	changeImg(query_type, tag, count, offset, 'false')
+}
+
 function update_tag()
 {
-    var url = "http://192.168.1.10:8081/update_file";
+    var url = "http://192.168.1.13:8081/update_file";
     var xhr = new XMLHttpRequest();
     xhr.open("POST", url, true);
 
-    filter = document.getElementById('filter').value;
-    new_tag = document.getElementById('new_tag').value
-    filter_type = document.getElementById('filter_type').value;
+    filter = parent.right_frame.document.getElementById('filter').value
+    new_tag = parent.right_frame.document.getElementById('new_tag').value
+    filter_type = parent.right_frame.document.getElementById('filter_type').value;
+
+    if (parent.right_frame.document.getElementById('replace_tag').checked) {
+        replace_tag = 'true'
+    } else {
+        replace_tag = 'false'
+    }
 
     xhr.setRequestHeader('Access-Control-Allow-Headers', '*');
     xhr.setRequestHeader("Accept", "application/json");
@@ -86,25 +103,27 @@ function update_tag()
     xhr.send(JSON.stringify({
         filter: filter,
         new_tag: new_tag,
+        replace_tag: replace_tag,
         filter_type: filter_type
     }));
     xhr.onload = function() {
         var data = JSON.parse(this.responseText);
         // console.log(data);
-        parent.right_frame.document.getElementById('new_tag').value = ""
+        // parent.right_frame.document.getElementById('new_tag').value = ""
         if (data['error'] == null) {
             parent.right_frame.document.getElementById('message').value = "Tag updated successfully"
-            parent.right_frame.document.getElementById('current_tag').value = data['updated_tag']
+            parent.right_frame.document.getElementById('user_tags').value = data['updated_tag']
         } else {
             parent.right_frame.document.getElementById('message').value = "Tag update FAILED " + data['error']
         }
     };
+
 }
 
-function changeImg(query_type, tag, count, offset)
+function changeImg(query_type, tag, count, offset, ignore_year)
 {
     
-    var u = "http://192.168.1.10:8081/get_archive_directory";
+    var u = "http://192.168.1.13:8081/get_archive_directory";
     var x = new XMLHttpRequest();
     x.open("POST", u, false)
     x.setRequestHeader('Access-Control-Allow-Headers', '*');
@@ -116,30 +135,40 @@ function changeImg(query_type, tag, count, offset)
     console.log(d)
     var path_prefix = d['dir_prefix']
 
-    var url = "http://192.168.1.10:8081/get_row";
+    var url = "http://192.168.1.13:8081/get_row";
     var xhr = new XMLHttpRequest();
     xhr.open("POST", url, true);
 
     xhr.setRequestHeader('Access-Control-Allow-Headers', '*');
     xhr.setRequestHeader("Accept", "application/json");
     xhr.setRequestHeader("Content-Type", "application/json");
+    if (document.getElementById('show_deleted').checked) {
+        show_deleted = 'true'
+    } else {
+        show_deleted = 'false'
+    }
     if (query_type == "date") {
-        mmyy = parent.left_frame.document.getElementById('datepicker').value
-        month = mmyy.split(" ")[0]
-        year = mmyy.split(" ")[1]
+        mmyy = document.getElementById('specific_date').value
+        day = mmyy.split("-")[2]
+        month = mmyy.split("-")[1]
+        year = mmyy.split("-")[0]
         xhr.send(JSON.stringify({
             offset: offset,
             count: count,
             tag: tag,
+            show_deleted: show_deleted,
             query_type: query_type,
+            day: day,
             month: month,
-            year: year
+            year: year,
+            ignore_year: ignore_year
         }));
     } else {
         xhr.send(JSON.stringify({
             offset: offset,
             count: count,
             tag: tag,
+            show_deleted: show_deleted,
             query_type: query_type
         }));
     }
@@ -192,16 +221,16 @@ function changeImg(query_type, tag, count, offset)
                     new_next_offset = Number("0");
                 }
 
-                // $("#prev").attr("onclick", 'changeImg("' + query_type + '", "' + tag + '", ' + count + ', ' + new_prev_offset + ")")
-                // $("#next").attr("onclick", 'changeImg("' + query_type + '", "' + tag + '", ' + count + ', ' + new_next_offset + ")")
-                $("#prev_button").attr("onclick", 'changeImg("' + query_type + '", "' + tag + '", ' + count + ', ' + new_prev_offset + ")")
-                $("#next_button").attr("onclick", 'changeImg("' + query_type + '", "' + tag + '", ' + count + ', ' + new_next_offset + ")")
+                $("#prev_button").attr("onclick", 'changeImg("' + query_type + '", "' + tag + '", ' + count + ', ' + new_prev_offset + ', ' + ignore_year + ")")
+                $("#next_button").attr("onclick", 'changeImg("' + query_type + '", "' + tag + '", ' + count + ', ' + new_next_offset + ', ' + ignore_year + ")")
 
                 parent.right_frame.document.getElementById('filter').value = data['file_list'][0][0]
-                parent.right_frame.document.getElementById('current_tag').value = data['file_list'][0][1]
-                parent.right_frame.document.getElementById('new_tag').value = ""
+                parent.right_frame.document.getElementById('system_tags').value = data['file_list'][0][1]
+                parent.right_frame.document.getElementById('user_tags').value = data['file_list'][0][2]
+                // parent.right_frame.document.getElementById('new_tag').value = ""
                 parent.right_frame.document.getElementById('message').value = ""
                 parent.right_frame.document.getElementById('rotate_value').value = "90"
+                parent.right_frame.document.getElementById('button_update_tag_next').onclick = function (){update_tag_next(query_type, tag, count, new_next_offset);};
 
             });
         } else {

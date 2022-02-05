@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Pragma" content="no-cache">
+    </head>
+    <body> 
+        <pre id="output"></pre>
+        <script>
+            var output = document.getElementById('output');
+            var url = "http://192.168.1.10:8081/stream";
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url);
+            xhr.send();
+
+            setInterval(function() {
+                output.textContent = xhr.responseText;
+            }, 1000);
+        </script>
+
+    </body>
+</html>

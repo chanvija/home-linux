@@ -1,54 +1,95 @@
 from flask import Flask, request, jsonify, make_response, render_template
+from flask_cors import CORS
+from time import sleep
 import sqlite3
 import os
 import json
+import re
 
 app = Flask(__name__)
+CORS(app)
 
-db_file = "/usr/local/var/www/home-linux-www/html/cdj-album.db"
+db_file = "/data1/pictures-archive/cdj-album.db"
 if not os.path.isfile(db_file):
-    db_file = "/var/www/html/pictures-archive/cdj-album.db"
+    #db_file = "/var/www/html/cdj-album.db"
+    pass
+
+@app.route('/stream')
+def stream():
+    def generate():
+        with open('/var/log/system.log') as f:
+            while True:
+                yield f.read()
+                sleep(1)
+
+    if request.method == "OPTIONS": # CORS preflight
+        response = make_response()
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers", "*")
+        response.headers.add("Access-Control-Allow-Methods", "*")
+        return(response)
+    elif ( request.method == 'POST' or request.method == "GET" ):
+        retval = make_response()
+        retval.headers.add("Access-Control-Allow-Origin", "*") 
+        retval = jsonify(log_lines=generate())
+        return app.response_class(retval, mimetype='text/plain')
 
 @app.route('/get_unique_tags',methods = ['GET', 'POST', 'OPTIONS'])
 def get_unique_tags():
     if request.method == "OPTIONS": # CORS preflight
         response = make_response()
         response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add('Access-Control-Allow-Headers', "*")
-        response.headers.add('Access-Control-Allow-Methods', "*")
+        response.headers.add("Access-Control-Allow-Headers", "*")
+        response.headers.add("Access-Control-Allow-Methods", "*")
         return(response)
     elif ( request.method == 'POST' or request.method == "GET" ):
-        data = request.get_json()    
         conn = sqlite3.connect(db_file)
         myCursor = conn.cursor()
-        myCursor.execute('SELECT DISTINCT tags FROM collection')
-        temp = myCursor.fetchall()
-        tag_list = {}
-        tag_list['tags'] = []
-        for t in temp:
-            for t1 in t[0].split(","):
-                if not t1 in tag_list['tags']:
-                    tag_list['tags'].append(t1)
 
-        tag_list['tags'] = sorted(tag_list['tags'])
+        #myCursor.execute('SELECT DISTINCT user_tags FROM collection WHERE user_tags NOT LIKE "%delete%" and user_tags NOT LIKE ""')
+        myCursor.execute('SELECT DISTINCT user_tags FROM collection WHERE user_tags NOT LIKE ""')
+        temp = myCursor.fetchall()
+        print(temp)
+        tag_list = []
+        for t in temp:
+            for t1 in t[0].split(":"):
+                if not t1 in tag_list:
+                    tag_list.append(t1)
+
+        #myCursor.execute('SELECT DISTINCT tags FROM collection WHERE user_tags NOT LIKE "%delete%" and tags NOT LIKE ""')
+        myCursor.execute('SELECT DISTINCT tags FROM collection WHERE tags NOT LIKE ""')
+        temp = myCursor.fetchall()
+        print(temp)
+        for t in temp:
+            for t1 in t[0].split(":"):
+                x = re.match('20\d\d',t1)
+                if x or t1.isalpha():
+                    if not t1 in tag_list:
+                        tag_list.append(t1)
+
+        tag_list = sorted(tag_list)
 
         print(f"Unique tag list : {tag_list}")
-        return(tag_list)
+        retval = make_response()
+        retval.headers.add("Access-Control-Allow-Origin", "*") 
+        retval = jsonify(tag_list=tag_list)
+        return(retval)
 
 @app.route('/get_archive_directory',methods = ['POST', 'OPTIONS'])
 def get_archive_directory():
     if request.method == "OPTIONS": # CORS preflight
         response = make_response()
         response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add('Access-Control-Allow-Headers', "*")
-        response.headers.add('Access-Control-Allow-Methods', "*")
+        response.headers.add("Access-Control-Allow-Headers", "*")
+        response.headers.add("Access-Control-Allow-Methods", "*")
         return(response)
     elif request.method == 'POST':
-        dir_prefix = "../../pictures-archive/"
+        dir_prefix = "/data1/pictures-archive/"
         if not os.path.isdir(dir_prefix):
             dir_prefix = "pictures-archive/"
         
         print(f"dir_path = {dir_prefix}")
+        #dir_prefix = make_response()
         dir_prefix = jsonify(dir_prefix=dir_prefix)
         dir_prefix.headers.add("Access-Control-Allow-Origin", "*") 
         return(dir_prefix)
@@ -58,40 +99,50 @@ def update_file():
     if request.method == "OPTIONS": # CORS preflight
         response = make_response()
         response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add('Access-Control-Allow-Headers', "*")
-        response.headers.add('Access-Control-Allow-Methods', "*")
+        response.headers.add("Access-Control-Allow-Headers", "*")
+        response.headers.add("Access-Control-Allow-Methods", "*")
         return(response)
     elif request.method == 'POST':
         data = request.get_json()    
         print(data.keys())    
-        new_tag = data['new_tag']
+        new_tag_list = data['new_tag'].lower()
+        replace_tag = data['replace_tag'].lower()
         filter = data['filter']
         filter_type = data['filter_type']
         conn = sqlite3.connect(db_file)
         myCursor = conn.cursor()
+        retval = make_response()
+        retval.headers.add("Access-Control-Allow-Origin", "*") 
         if filter_type == "file_single":
-            myCursor.execute('SELECT filename,tags FROM collection where filename = "' + filter + '"')
+            myCursor.execute('SELECT filename,user_tags FROM collection where filename = "' + filter + '"')
             temp = myCursor.fetchall()
-            print(f"... old tag {temp[0][1]}")
-            if new_tag not in temp[0][1].split(","):
-                for t in temp[0][1].split(","):
-                    new_tag =  new_tag + "," + str(t) if t else new_tag
-                print(f"... new tag {new_tag}")
-                myCursor.execute('UPDATE collection SET tags="' + new_tag + '" WHERE filename = "' + filter + '"')
-                conn.commit()
-                myCursor.execute('SELECT tags FROM collection where filename = "' + filter + '"')
-                new_current_tags = myCursor.fetchall()
-                retval = jsonify(result=True, old_tag=temp[0][1],  updated_tag=new_current_tags[0][0], error=None)
+            print(f"... old tag {temp[0][1]}  replace-flag : {replace_tag}")
+            tag_exists = False
+            exists_tag_list = []
+            if replace_tag == 'false':
+                updated_tag = str(temp[0][1])
             else:
-                print(f"New tag : '{new_tag}'' already exists for this file {filter} Existing tags : {temp[0][1]}")
-                retval = jsonify(result=False, error="Tag already exists")
-                        
+                print(f'Replacing tags')
+                updated_tag = ""
+            for new_tag in new_tag_list.split(","):
+                if new_tag not in updated_tag.split(":"):
+                    updated_tag = updated_tag + ":" + new_tag
+                else:
+                    print(f"New tag : '{new_tag}'' already exists for this file {filter} Existing tags : {updated_tag}")
+                    tag_exists = True
+                    exists_tag_list.append(new_tag)
+            updated_tag = updated_tag.lstrip(':')
+            print(f"... new tag {updated_tag}")
+            myCursor.execute('UPDATE collection SET user_tags="' + updated_tag + '" WHERE filename = "' + filter + '"')
+            conn.commit()
+            myCursor.execute('SELECT user_tags FROM collection where filename = "' + filter + '"')
+            new_current_tags = myCursor.fetchall()
+            retval = jsonify(result=True, old_tag=temp[0][1],  updated_tag=new_current_tags[0][0], error=None)
             conn.close()
         else:
             conn.close()
-            return(jsonify(result=False, error=f"Unknown filter_type {request.form['filter_type']}"))
+            ret_val = jsonify(result=False, error=f"Unknown filter_type {request.form['filter_type']}")
                    
-        retval.headers.add("Access-Control-Allow-Origin", "*") 
         return(retval)
         
             
@@ -100,30 +151,54 @@ def get_row():
     if request.method == "OPTIONS": # CORS preflight
         response = make_response()
         response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add('Access-Control-Allow-Headers', "*")
-        response.headers.add('Access-Control-Allow-Methods', "*")
+        response.headers.add("Access-Control-Allow-Headers", "*")
+        response.headers.add("Access-Control-Allow-Methods", "*")
         return(response)
     elif request.method == 'POST':
         data = request.get_json()        
         tag = data['tag'].lower()
+        show_deleted = data['show_deleted'].lower()
         count = data['count']
         offset = data['offset']
         query_type = data['query_type']
         conn = sqlite3.connect(db_file)
         myCursor = conn.cursor()
         if tag == "today":
-            cmd = f'SELECT filename,tags FROM collection WHERE day = strftime("%d","now", "localtime") AND month = strftime("%m","now", "localtime") AND type LIKE "%photo%" and tags NOT LIKE "%delete%" ORDER by year,filename LIMIT {count} OFFSET {offset}'
-            cmd2 = f'SELECT count(*) FROM collection WHERE day = strftime("%d","now", "localtime") AND month = strftime("%m","now", "localtime") AND type LIKE "%photo%" and tags NOT LIKE "%delete%" ORDER by year,filename'
+            if show_deleted == 'false':
+                cmd = f'SELECT filename,tags,user_tags FROM collection WHERE day = strftime("%d","now", "localtime") AND month = strftime("%m","now", "localtime") AND type LIKE "%photo%" and user_tags NOT LIKE "%delete%" ORDER by year,filename LIMIT {count} OFFSET {offset}'
+                cmd2 = f'SELECT count(*) FROM collection WHERE day = strftime("%d","now", "localtime") AND month = strftime("%m","now", "localtime") AND type LIKE "%photo%" and user_tags NOT LIKE "%delete%" ORDER by year,filename'
+            else:
+                print(f'showing deleted files')
+                cmd = f'SELECT filename,tags,user_tags FROM collection WHERE day = strftime("%d","now", "localtime") AND month = strftime("%m","now", "localtime") AND type LIKE "%photo%" ORDER by year,filename LIMIT {count} OFFSET {offset}'
+                cmd2 = f'SELECT count(*) FROM collection WHERE day = strftime("%d","now", "localtime") AND month = strftime("%m","now", "localtime") AND type LIKE "%photo%" ORDER by year,filename'
 
         elif query_type == "date":
             yy = data['year']
-            mm = data['month'].lower()
-            cmd = f'SELECT filename,tags FROM collection WHERE year = {yy} AND tags LIKE "%{mm}%" AND type LIKE "%photo%" and tags NOT LIKE "%delete%" ORDER by year,filename LIMIT {count} OFFSET {offset}'    
-            cmd2 = f'SELECT count(*) FROM collection WHERE year = {yy} AND tags LIKE "%{mm}%" AND type LIKE "%photo%" and tags NOT LIKE "%delete%" ORDER by year,filename'    
+            mm = data['month']
+            dd = data['day']
+            ignore_year = data['ignore_year']
+            if ignore_year == 'false':
+                if show_deleted == 'false':
+                    cmd = f'SELECT filename,tags,user_tags FROM collection WHERE month = {mm} AND day = {dd} AND type LIKE "%photo%" and user_tags NOT LIKE "%delete%" ORDER by year,filename LIMIT {count} OFFSET {offset}'    
+                    cmd2 = f'SELECT count(*) FROM collection WHERE month = {mm} AND day = {dd} AND type LIKE "%photo%" and user_tags NOT LIKE "%delete%" ORDER by year,filename'    
+                else:
+                    cmd = f'SELECT filename,tags,user_tags FROM collection WHERE month = {mm} AND day = {dd} AND type LIKE "%photo%" ORDER by year,filename LIMIT {count} OFFSET {offset}'    
+                    cmd2 = f'SELECT count(*) FROM collection WHERE month = {mm} AND day = {dd} AND type LIKE "%photo%" ORDER by year,filename'    
+            else:
+                if show_deleted == 'false':
+                    cmd = f'SELECT filename,tags,user_tags FROM collection WHERE month = {mm} AND day = {dd} AND type LIKE "%photo%" and user_tags NOT LIKE "%delete%" ORDER by year,filename LIMIT {count} OFFSET {offset}'    
+                    cmd2 = f'SELECT count(*) FROM collection WHERE month = {mm} AND day = {dd} AND type LIKE "%photo%" and user_tags NOT LIKE "%delete%" ORDER by year,filename'    
+                else:
+                    cmd = f'SELECT filename,tags,user_tags FROM collection WHERE month = {mm} AND day = {dd} AND type LIKE "%photo%" ORDER by year,filename LIMIT {count} OFFSET {offset}'    
+                    cmd2 = f'SELECT count(*) FROM collection WHERE month = {mm} AND day = {dd} AND type LIKE "%photo%" ORDER by year,filename'    
 
         else:
-            cmd = f'SELECT filename,tags FROM collection where tags LIKE "%{tag}%" AND type LIKE "%photo%" and tags NOT LIKE "%delete%" LIMIT {count}  OFFSET {offset}'
-            cmd2 = f'SELECT count(*) FROM collection where tags LIKE "%{tag}%" AND type LIKE "%photo%" and tags NOT LIKE "%delete%"'
+            if user_tags == "delete":
+                cmd = f'SELECT filename,tags,user_tags FROM collection where (tags LIKE "%{tag}%" OR user_tags LIKE "%{tag}%") AND type LIKE "%photo%" LIMIT {count}  OFFSET {offset}'
+                cmd2 = f'SELECT count(*) FROM collection where (tags LIKE "%{tag}%" OR user_tags LIKE "%{tag}%") AND type LIKE "%photo%"'
+            else:
+                cmd = f'SELECT filename,tags,user_tags FROM collection where (tags LIKE "%{tag}%" OR user_tags LIKE "%{tag}%") AND type LIKE "%photo%" and user_tags NOT LIKE "%delete%" LIMIT {count}  OFFSET {offset}'
+                cmd2 = f'SELECT count(*) FROM collection where (tags LIKE "%{tag}%" OR user_tags LIKE "%{tag}%") AND type LIKE "%photo%" and user_tags NOT LIKE "%delete%"'
         print(cmd)
         myCursor.execute(cmd)
         temp = myCursor.fetchall()
@@ -136,13 +211,13 @@ def get_row():
         
         file_list = []
         for t in temp:
-            file_list.append((t[0], t[1]))
+            file_list.append((t[0], t[1], t[2]))
         conn.close()
         print(f"..{file_list}..")
-        retval = jsonify(file_list=file_list, row_count=temp2[0][0])
+        retval = make_response()
         retval.headers.add("Access-Control-Allow-Origin", "*") 
+        retval = jsonify(file_list=file_list, row_count=temp2[0][0])
         return(retval)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8081, debug=True)
-    

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="utf-8">
+        <meta http-equiv="Pragma" content="no-cache">
         <link rel="stylesheet" href="css/cdj.css" type="text/css">  
         <script language="JavaScript" type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script language="JavaScript" type="text/javascript" src="js/jquery.rotate.1-1.js"></script>
@@ -14,11 +16,15 @@
                 Filename
                 <p><input readonly name="filter" value="" id="filter" STYLE="color: white; width: 320px; background-color: black; border-color: black; border-width: 0px; border-bottom: black;" /></p>
                 Current tags
-                <p><input readonly name="current_tag" value="" id="current_tag"  STYLE="color: white; width: 320px; background-color: black; border-color: black; border-width: 0px; border-bottom: black;" /></p>
+                <p>System tags : <input readonly name="system_tags" value="" id="system_tags"  STYLE="color: white; width: 320px; background-color: black; border-color: black; border-width: 0px; border-bottom: black;" /></p>
+                <p>User tags   : <input readonly name="user_tags" value="" id="user_tags"  STYLE="color: white; width: 320px; background-color: black; border-color: black; border-width: 0px; border-bottom: black;" /></p>
                 <p><input readonly name="message" value="" id="message" class="message_box" /></p>
-                <p><label float="left"> New Tag </label><input type = "text" name = "new_tag" value="" id="new_tag" class="text_box"/></p>
-                <p><button type="button" onclick=rotate_image()>Rotate Image</button></p>
-                <a href="#" onclick=update_tag()>Submit</a>
+                <p><label float="left"> New Tag </label><input type = "text" name = "new_tag" value="" id="new_tag" class="text_box"/> comma separated</p>
+                <input type="checkbox" id="replace_tag" name="replace_tag" value="replace_tag">
+                <label for "replace_tag" style="color: white; font-size: 18px; text-align: left;">replace</label>
+                <p><button type="button" id="button_update_tag_next" onclick=update_tag_next()>Submit+Next</button>
+                <button type="button" id="button_update_tag" onclick=update_tag()>Submit</button>
+                <button type="button" id="button_rotate_image" onclick=rotate_image()>Rotate Image</button></p>
         </div>
     </body>
 </html>
