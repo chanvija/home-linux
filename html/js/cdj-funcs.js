@@ -217,6 +217,7 @@ function changeImg(query_type, tag, count, offset, ignore_year)
                     new_prev_offset = data['row_count'] - 1;
                 }
                 new_next_offset = Number(offset) + Number("1");
+                current_pic_num = new_next_offset
                 if (new_next_offset == data['row_count']) {
                     new_next_offset = Number("0");
                 }
@@ -228,6 +229,7 @@ function changeImg(query_type, tag, count, offset, ignore_year)
                 parent.right_frame.document.getElementById('system_tags').value = data['file_list'][0][1]
                 parent.right_frame.document.getElementById('user_tags').value = data['file_list'][0][2]
                 // parent.right_frame.document.getElementById('new_tag').value = ""
+                parent.right_frame.document.getElementById('pic_count').value =  current_pic_num + " of " + data['row_count'] 
                 parent.right_frame.document.getElementById('message').value = ""
                 parent.right_frame.document.getElementById('rotate_value').value = "90"
                 parent.right_frame.document.getElementById('button_update_tag_next').onclick = function (){update_tag_next(query_type, tag, count, new_next_offset);};

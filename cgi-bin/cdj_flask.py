@@ -193,7 +193,7 @@ def get_row():
                     cmd2 = f'SELECT count(*) FROM collection WHERE month = {mm} AND day = {dd} AND type LIKE "%photo%" ORDER by year,filename'    
 
         else:
-            if user_tags == "delete":
+            if tag == "delete":
                 cmd = f'SELECT filename,tags,user_tags FROM collection where (tags LIKE "%{tag}%" OR user_tags LIKE "%{tag}%") AND type LIKE "%photo%" LIMIT {count}  OFFSET {offset}'
                 cmd2 = f'SELECT count(*) FROM collection where (tags LIKE "%{tag}%" OR user_tags LIKE "%{tag}%") AND type LIKE "%photo%"'
             else:
