@@ -12,8 +12,8 @@
         <link href='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css'>
     </head>
     <body>
-        <div class="grid">
-            <div class="g s1">
+        <div class="left_grid">
+            <div class="g l1">
                 <a href="#", onclick="changeImg('default', 'today', '3', '0');">On this day</a> <br>
                 <input type="checkbox" id="show_deleted" name="show_deleted" value="show_deleted">
                 <label for "show_deleted" style="color: white; font-size: 18px; text-align: left;">show deleted</label>
@@ -34,21 +34,21 @@
                     <label for="ignore_year" style="color: white; font-size: 18px; text-align: left;">Ignore year</label>
                 </div>
             </div>
-            <div class="g s2" id="show_image"></div>
-            <div class="g s3" id="img_info"></div>
+            <div class="g l2" id="show_image"></div>
+            <div class="g l3" id="img_info"></div>
 
-            <div class="g s5" id="left">
+            <div class="g l5" id="left">
                 <!--- <a href="#", id=prev>Prev</a> --->
                 <button type="button" title="Next" id="prev_button" class="button">Prev</button>
 
             </div>
-            <div class="g s6" id="right">
+            <div class="g l6" id="right">
                 <!--- <a href="#", id=next>Next</a> --->
                 <button type="button" title="Next" id="next_button" class="button">Next</button>
             </div>
-            <div class="g s7">
+            <div class="g l7">
             </div>
-            <div class="g s8"></div>
+            <div class="g l8"></div>
        </div>
        <script>
             $(document).ready(function () {

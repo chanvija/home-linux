@@ -85,51 +85,70 @@ a:active {
 .ui-datepicker-calendar {
     display: none;
 }
-.grid { 
+.right_grid { 
+    display: grid;
+    top: 0%;
+    bottom: 0%;
+    grid-template-columns: 200px;
+    grid-template-rows: 50px 820px;
+    grid-template-areas: 
+    "r1"
+    "r2"
+}
+.r1 { 
+    grid-area: r1;
+    background-color: black;
+}
+.r2 { 
+    grid-area: r2;
+    background-color: black;
+}
+
+.left_grid { 
     display: grid;
     top: 0%;
     bottom: 0%;
     grid-template-columns: 180px 40px 1300px 40px;
     grid-template-rows: 820px 100px;
     grid-template-areas: 
-    "s1 s5 s2 s6"
-    "s1 s7 s3 s8"
+    "l1 l5 l2 l6"
+    "l1 l7 l3 l8"
 }
-.s1 { 
-    grid-area: s1;
+.l1 { 
+    grid-area: l1;
     background-color: black;
 }
 
-.s2 { 
-    grid-area: s2;
+.l2 { 
+    grid-area: l2;
     background-color: black;
 }
-.s3 { 
-    grid-area: s3;
+.l3 { 
+    grid-area: l3;
     background-color: black;
 }
-.s4 {
-    grid-area: s4;
+.l4 {
+    grid-area: l4;
     background-color: black;
     color: white;
 }
-.s5 {
-    grid-area: s5;
+.l5 {
+    grid-area: l5;
     background-color: black;
 }
-.s6 {
-    grid-area: s6;
+.l6 {
+    grid-area: l6;
     background-color: black;
 }
-.s7 {
-    grid-area: s7;
+.l7 {
+    grid-area: l7;
     background-color: black;
 }
-.s8 {
-    grid-area: s8;
+.l8 {
+    grid-area: l8;
     background-color: black;
 }
-.s9 {
-    grid-area: s9;
+.l9 {
+    grid-area: l9;
     background-color: black;
 }

@@ -10,6 +10,22 @@ function show_picture(img)
     }); 
     // $("#right").load("2.html")   
 }
+function pic_num_focus() {
+    parent.right_frame.document.getElementById('pic_num').value = ""
+}
+function pic_num_change(query_type, tag, count, max_pic_count) {
+    new_pic_num = Number(parent.right_frame.document.getElementById('pic_num').value)
+    if (Number(new_pic_num) > Number(max_pic_count)) {
+        alert(new_pic_num + " " + max_pic_count)
+        new_pic_num = Number(max_pic_count) - Number(1)
+    } else { 
+        new_pic_num = Number(new_pic_num) - Number("1")
+    }
+    if (new_pic_num == Number("-1")) {
+        new_pic_num = Number("0")
+    }
+	changeImg(query_type, tag, count, new_pic_num, 'false')
+}
 function clear_tag_text() {
     document.getElementById('new_tag').value = '';
 }
@@ -239,9 +255,11 @@ function changeImg(query_type, tag, count, offset, ignore_year)
                 parent.right_frame.document.getElementById('system_tags').value = data['file_list'][0][1]
                 parent.right_frame.document.getElementById('user_tags').value = data['file_list'][0][2]
                 // parent.right_frame.document.getElementById('new_tag').value = ""
-                parent.right_frame.document.getElementById('pic_count').value =  current_pic_num + " of " + data['row_count'] 
+                parent.right_frame.document.getElementById('pic_num').value =  current_pic_num 
+                parent.right_frame.document.getElementById('pic_count').value =  " of " + data['row_count'] 
                 parent.right_frame.document.getElementById('message').value = ""
                 parent.right_frame.document.getElementById('rotate_value').value = "90"
+                parent.right_frame.document.getElementById('pic_num').oninput = function (){pic_num_change(query_type, tag, count, data['row_count']);};
                 parent.right_frame.document.getElementById('button_update_tag_next').onclick = function (){update_tag_next(query_type, tag, count, new_next_offset);};
                 if ((Number(offset) + Number("1")) == data['row_count']) {
                     delete_offset = Number("0")
