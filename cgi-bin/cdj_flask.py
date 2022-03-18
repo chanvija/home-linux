@@ -4,6 +4,8 @@ from time import sleep
 import sqlite3
 import os
 import json
+import pymongo
+from bson import json_util
 import re
 
 app = Flask(__name__)
@@ -156,6 +158,7 @@ def get_row():
         return(response)
     elif request.method == 'POST':
         data = request.get_json()        
+        print(json_util.dumps(data, indent=4))
         tag = data['tag'].lower()
         show_deleted = data['show_deleted'].lower()
         count = data['count']

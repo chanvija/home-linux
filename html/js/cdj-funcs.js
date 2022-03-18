@@ -75,20 +75,30 @@ function rotate_image()
     parent.right_frame.document.getElementById("rotate_value").value = x;
 }
 
+function update_tag_delete(query_type, tag, count, offset)
+{
+       update_tag('true')
+       changeImg(query_type, tag, count, offset, 'false')
+}
+
 function update_tag_next(query_type, tag, count, offset)
 {
-	update_tag()
+	update_tag('false')
 	changeImg(query_type, tag, count, offset, 'false')
 }
 
-function update_tag()
+function update_tag(delete_tag)
 {
     var url = "http://192.168.1.13:8081/update_file";
     var xhr = new XMLHttpRequest();
     xhr.open("POST", url, true);
 
     filter = parent.right_frame.document.getElementById('filter').value
-    new_tag = parent.right_frame.document.getElementById('new_tag').value
+    if (delete_tag == 'false') {
+        new_tag = parent.right_frame.document.getElementById('new_tag').value
+    } else {
+        new_tag = 'delete'
+    }
     filter_type = parent.right_frame.document.getElementById('filter_type').value;
 
     if (parent.right_frame.document.getElementById('replace_tag').checked) {
@@ -142,7 +152,7 @@ function changeImg(query_type, tag, count, offset, ignore_year)
     xhr.setRequestHeader('Access-Control-Allow-Headers', '*');
     xhr.setRequestHeader("Accept", "application/json");
     xhr.setRequestHeader("Content-Type", "application/json");
-    if (document.getElementById('show_deleted').checked) {
+    if (parent.left_frame.document.getElementById('show_deleted').checked) {
         show_deleted = 'true'
     } else {
         show_deleted = 'false'
@@ -233,6 +243,16 @@ function changeImg(query_type, tag, count, offset, ignore_year)
                 parent.right_frame.document.getElementById('message').value = ""
                 parent.right_frame.document.getElementById('rotate_value').value = "90"
                 parent.right_frame.document.getElementById('button_update_tag_next').onclick = function (){update_tag_next(query_type, tag, count, new_next_offset);};
+                if (offset == data['row_count']) {
+                    delete_offset = Number("0")
+                } else {
+                    if (show_deleted == 'false') {
+                        delete_offset = offset
+                    } else {
+                        delete_offset = new_next_offset
+                    }
+                }
+                parent.right_frame.document.getElementById('button_update_tag_delete').onclick = function (){update_tag_delete(query_type, 'delete', count, delete_offset);};
 
             });
         } else {
