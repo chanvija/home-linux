@@ -243,7 +243,7 @@ function changeImg(query_type, tag, count, offset, ignore_year)
                 parent.right_frame.document.getElementById('message').value = ""
                 parent.right_frame.document.getElementById('rotate_value').value = "90"
                 parent.right_frame.document.getElementById('button_update_tag_next').onclick = function (){update_tag_next(query_type, tag, count, new_next_offset);};
-                if (offset == data['row_count']) {
+                if ((Number(offset) + Number("1")) == data['row_count']) {
                     delete_offset = Number("0")
                 } else {
                     if (show_deleted == 'false') {
