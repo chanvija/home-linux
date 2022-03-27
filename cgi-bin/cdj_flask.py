@@ -133,7 +133,6 @@ def update_file():
         return(response)
     elif request.method == 'POST':
         data = request.get_json()    
-        print(data.keys())    
         action = data['action'].lower()
         new_tag_list = data['action_value'].lower()
         replace_tag = data['replace_tag'].lower()
@@ -172,10 +171,8 @@ def update_file():
                 print(f'updating usage for tag {ntag}')
                 a = myCursor.execute(f'REPLACE INTO tag_table (tag,last_used) VALUES ("{ntag}","{today}")')
                 b = conn.commit()
-                print(f'{a}\n{b}')
                 a = myCursor.execute(f'UPDATE tag_table SET last_used="{today}" WHERE tag = "{ntag}"')
                 b = conn.commit()
-                print(f'{a}\n{b}')
             myCursor.execute('UPDATE collection SET user_tags="' + updated_tag + '" WHERE filename = "' + filter + '"')
             conn.commit()
             myCursor.execute('SELECT user_tags FROM collection where filename = "' + filter + '"')
