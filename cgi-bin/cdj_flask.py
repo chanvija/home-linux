@@ -270,7 +270,6 @@ def get_row():
             a = myCursor.execute(f'REPLACE INTO tag_table (tag,last_used) VALUES ("{ntag}","{today}")')
             #a = myCursor.execute(f'UPDATE tag_table SET last_used="{today}" WHERE tag = "{ntag}"')
             b = conn.commit()
-            print(f'{ntag} - {a} : {b}')
         conn.close()
 
         retval = make_response()

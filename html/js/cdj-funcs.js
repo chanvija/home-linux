@@ -32,7 +32,6 @@ function pic_num_focus() {
 function pic_num_change(query_type, tag, count, max_pic_count) {
     new_pic_num = Number(parent.right_frame.document.getElementById('pic_num').value)
     if (Number(new_pic_num) > Number(max_pic_count)) {
-        //alert(new_pic_num + " " + max_pic_count)
         new_pic_num = Number(max_pic_count) - Number(1)
     } else { 
         new_pic_num = Number(new_pic_num) - Number("1")
@@ -270,7 +269,6 @@ function changeImg(query_type, tag, count, offset, ignore_year)
 
                 _width = s.w * m
                 _height = s.h * m    
-                //alert(s.w + " " + s.h + " " + m)
                 console.log("show start : " + Date.now())
                 $("#show_image").html($("<img>").attr("src", img).width(_width).height(_height));
                 console.log("show end : " + Date.now())
