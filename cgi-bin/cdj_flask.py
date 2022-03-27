@@ -7,6 +7,7 @@ import json
 import pymongo
 from bson import json_util
 import re
+import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -35,6 +36,32 @@ def stream():
         retval.headers.add("Access-Control-Allow-Origin", "*") 
         retval = jsonify(log_lines=generate())
         return app.response_class(retval, mimetype='text/plain')
+
+@app.route('/get_latest_tags',methods = ['GET', 'POST', 'OPTIONS'])
+def get_latest_tags():
+    if request.method == "OPTIONS": # CORS preflight
+        response = make_response()
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers", "*")
+        response.headers.add("Access-Control-Allow-Methods", "*")
+        return(response)
+    elif ( request.method == 'POST' or request.method == "GET" ):
+        conn = sqlite3.connect(db_file)
+        myCursor = conn.cursor()
+        today = datetime.datetime.now().strftime('%-Y-%-m-%-d')
+        print(today)
+        myCursor.execute('SELECT DISTINCT tag FROM tag_table WHERE last_used = "' + today + '"')
+        temp = myCursor.fetchall()
+        tag_list = []
+        for t in sorted(temp):
+            if t[0] != "":
+                tag_list.append(t[0])
+
+        print(f'tag_list : {tag_list}')
+        retval = make_response()
+        retval.headers.add("Access-Control-Allow-Origin", "*") 
+        retval = jsonify(tag_list=tag_list)
+        return(retval)
 
 @app.route('/get_unique_tags',methods = ['GET', 'POST', 'OPTIONS'])
 def get_unique_tags():
@@ -107,7 +134,8 @@ def update_file():
     elif request.method == 'POST':
         data = request.get_json()    
         print(data.keys())    
-        new_tag_list = data['new_tag'].lower()
+        action = data['action'].lower()
+        new_tag_list = data['action_value'].lower()
         replace_tag = data['replace_tag'].lower()
         filter = data['filter']
         filter_type = data['filter_type']
@@ -126,6 +154,9 @@ def update_file():
             else:
                 print(f'Replacing tags')
                 updated_tag = ""
+            if action == "clear":
+                new_tag = ""
+                updated_tag = ""
             for new_tag in new_tag_list.split(","):
                 if new_tag not in updated_tag.split(":"):
                     updated_tag = updated_tag + ":" + new_tag
@@ -134,7 +165,17 @@ def update_file():
                     tag_exists = True
                     exists_tag_list.append(new_tag)
             updated_tag = updated_tag.lstrip(':')
+            updated_tag = updated_tag.rstrip(':')
             print(f"... new tag {updated_tag}")
+            today = datetime.datetime.now().strftime('%-Y-%-m-%-d')
+            for ntag in updated_tag.split(':'):
+                print(f'updating usage for tag {ntag}')
+                a = myCursor.execute(f'REPLACE INTO tag_table (tag,last_used) VALUES ("{ntag}","{today}")')
+                b = conn.commit()
+                print(f'{a}\n{b}')
+                a = myCursor.execute(f'UPDATE tag_table SET last_used="{today}" WHERE tag = "{ntag}"')
+                b = conn.commit()
+                print(f'{a}\n{b}')
             myCursor.execute('UPDATE collection SET user_tags="' + updated_tag + '" WHERE filename = "' + filter + '"')
             conn.commit()
             myCursor.execute('SELECT user_tags FROM collection where filename = "' + filter + '"')
@@ -213,10 +254,25 @@ def get_row():
         print(f"... row_count : {temp2[0][0]}")
         
         file_list = []
+        user_tag_list = []
         for t in temp:
             file_list.append((t[0], t[1], t[2]))
+            for ut in t[2].split(':'):
+                if ut not in user_tag_list:
+                    user_tag_list.append(ut)
         conn.close()
-        print(f"..{file_list}..")
+        print(f"..file_list     : {file_list}..")
+        print(f'..user_tag_list : {user_tag_list}..')
+        conn = sqlite3.connect(db_file)
+        myCursor = conn.cursor()
+        today = datetime.datetime.now().strftime('%-Y-%-m-%-d')
+        for ntag in user_tag_list:
+            a = myCursor.execute(f'REPLACE INTO tag_table (tag,last_used) VALUES ("{ntag}","{today}")')
+            #a = myCursor.execute(f'UPDATE tag_table SET last_used="{today}" WHERE tag = "{ntag}"')
+            b = conn.commit()
+            print(f'{ntag} - {a} : {b}')
+        conn.close()
+
         retval = make_response()
         retval.headers.add("Access-Control-Allow-Origin", "*") 
         retval = jsonify(file_list=file_list, row_count=temp2[0][0])

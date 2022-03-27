@@ -1,5 +1,20 @@
+function append_tag(cb) {
+    v = parent.right_frame.document.getElementById("new_tag").value;
+    if (cb.checked) {
+        if (!v.includes(cb.value)) {
+            n = v + ',' + cb.value
+        }
+    } else {
+        var re = new RegExp(cb.value, "g")
+        n = v.replace(re, ",")
+        n = n.replace(/,,/g,'')
+    }
+    n = n.replace(/(^,)|(,$)/g,"")
+    parent.right_frame.document.getElementById("new_tag").value = n
+}
 function show_picture(img)
 {
+    console.log("show start : " + Date.now())
     $("<img/>").attr("src", img).on("load",function(){
         s = {w:this.width, h:this.height};   
         f = 300/s.w
@@ -9,6 +24,7 @@ function show_picture(img)
         
     }); 
     // $("#right").load("2.html")   
+    console.log("show end : " + Date.now())
 }
 function pic_num_focus() {
     parent.right_frame.document.getElementById('pic_num').value = ""
@@ -16,7 +32,7 @@ function pic_num_focus() {
 function pic_num_change(query_type, tag, count, max_pic_count) {
     new_pic_num = Number(parent.right_frame.document.getElementById('pic_num').value)
     if (Number(new_pic_num) > Number(max_pic_count)) {
-        alert(new_pic_num + " " + max_pic_count)
+        //alert(new_pic_num + " " + max_pic_count)
         new_pic_num = Number(max_pic_count) - Number(1)
     } else { 
         new_pic_num = Number(new_pic_num) - Number("1")
@@ -91,30 +107,49 @@ function rotate_image()
     parent.right_frame.document.getElementById("rotate_value").value = x;
 }
 
+function clear_new_tag()
+{
+    parent.right_frame.document.getElementById("new_tag").value = "";
+}
+
+function update_tag_clear(query_type, tag, count, offset)
+{
+       update_tag('clear')
+}
+
 function update_tag_delete(query_type, tag, count, offset)
 {
-       update_tag('true')
+       update_tag('delete')
        changeImg(query_type, tag, count, offset, 'false')
 }
 
 function update_tag_next(query_type, tag, count, offset)
 {
-	update_tag('false')
+	update_tag('add_tag')
 	changeImg(query_type, tag, count, offset, 'false')
 }
 
-function update_tag(delete_tag)
+function update_tag(action)
 {
     var url = "http://192.168.1.13:8081/update_file";
     var xhr = new XMLHttpRequest();
     xhr.open("POST", url, true);
 
     filter = parent.right_frame.document.getElementById('filter').value
-    if (delete_tag == 'false') {
-        new_tag = parent.right_frame.document.getElementById('new_tag').value
-    } else {
-        new_tag = 'delete'
+    switch(action) {
+        case "delete":
+            new_tag = 'delete';
+            break;
+        case "clear":
+            new_tag = "";
+            break;
+        case "add_tag":
+            new_tag = parent.right_frame.document.getElementById('new_tag').value
+            break;
+        default:
+            return
     }
+            
     filter_type = parent.right_frame.document.getElementById('filter_type').value;
 
     if (parent.right_frame.document.getElementById('replace_tag').checked) {
@@ -128,7 +163,8 @@ function update_tag(delete_tag)
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.send(JSON.stringify({
         filter: filter,
-        new_tag: new_tag,
+        action: action,
+        action_value: new_tag,
         replace_tag: replace_tag,
         filter_type: filter_type
     }));
@@ -143,7 +179,6 @@ function update_tag(delete_tag)
             parent.right_frame.document.getElementById('message').value = "Tag update FAILED " + data['error']
         }
     };
-
 }
 
 function changeImg(query_type, tag, count, offset, ignore_year)
@@ -236,7 +271,9 @@ function changeImg(query_type, tag, count, offset, ignore_year)
                 _width = s.w * m
                 _height = s.h * m    
                 //alert(s.w + " " + s.h + " " + m)
+                console.log("show start : " + Date.now())
                 $("#show_image").html($("<img>").attr("src", img).width(_width).height(_height));
+                console.log("show end : " + Date.now())
 
                 new_prev_offset = Number(offset) - Number("1");
                 if (new_prev_offset < 0) {
@@ -254,7 +291,6 @@ function changeImg(query_type, tag, count, offset, ignore_year)
                 parent.right_frame.document.getElementById('filter').value = data['file_list'][0][0]
                 parent.right_frame.document.getElementById('system_tags').value = data['file_list'][0][1]
                 parent.right_frame.document.getElementById('user_tags').value = data['file_list'][0][2]
-                // parent.right_frame.document.getElementById('new_tag').value = ""
                 parent.right_frame.document.getElementById('pic_num').value =  current_pic_num 
                 parent.right_frame.document.getElementById('pic_count').value =  " of " + data['row_count'] 
                 parent.right_frame.document.getElementById('message').value = ""
@@ -270,12 +306,78 @@ function changeImg(query_type, tag, count, offset, ignore_year)
                         delete_offset = new_next_offset
                     }
                 }
-                parent.right_frame.document.getElementById('button_update_tag_delete').onclick = function (){update_tag_delete(query_type, 'delete', count, delete_offset);};
-
+                parent.right_frame.document.getElementById('button_update_tag_delete').onclick = function (){update_tag_delete(query_type, tag, count, delete_offset);};
             });
         } else {
             parent.left_frame.document.getElementById('show_image').innerHTML = '<object type="text/html" data="no-images.html" ></object>';
             $("#next").attr("onclick", 'null')
+            parent.right_frame.document.getElementById('pic_num').value =  0
+            parent.right_frame.document.getElementById('pic_count').value =  " of " + data['row_count'] 
+            parent.right_frame.document.getElementById('system_tags').value = ''
+            parent.right_frame.document.getElementById('user_tags').value = ''
+            parent.right_frame.document.getElementById('message').value = ""
+            parent.right_frame.document.getElementById('pic_num').oninput = ''
+            parent.right_frame.document.getElementById('button_update_tag_next').onclick = ''
+            parent.right_frame.document.getElementById('button_update_tag_delete').onclick = ''
+            parent.right_frame.document.getElementById('filter').value = ''
         }
     };
+    setTimeout(function() {
+        url = "http://192.168.1.13:8081/get_latest_tags";
+        xhr = new XMLHttpRequest();
+        xhr.open("POST", url, true);
+        xhr.setRequestHeader('Access-Control-Allow-Headers', '*');
+        xhr.setRequestHeader("Accept", "application/json");
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.send()
+        xhr.onload = function() {
+            var data = JSON.parse(this.responseText);
+            console.log(data['tag_list']);
+            var text_len = 0
+            for (const tag of data['tag_list']) {
+                var element = parent.right_frame.document.getElementById("user_tag_" + tag);
+                new_tag = "user_tag_" + tag;
+                if (element == null || typeof(element) == 'undefined') {
+                    if ((text_len + tag.length) > 19) {
+                        text_len = 0;
+                        var br = document.createElement('br');
+                        container.appendChild(br);
+                    }
+                    text_len = text_len + tag.length
+                    checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.value = tag;
+                    checkbox.id = new_tag;
+                    checkbox.name = new_tag;
+                    label = document.createElement('label');
+                    label.htmlFor = new_tag;
+                    label.appendChild(document.createTextNode(tag));
+                    container = parent.right_frame.document.getElementById("info");
+                    container.appendChild(checkbox);
+                    container.appendChild(label);
+                    parent.right_frame.document.getElementById(new_tag).onclick = function (){append_tag(this);};
+                } else {
+                    parent.right_frame.document.getElementById(new_tag).checked = false
+                }
+            };
+            user_tags = parent.right_frame.document.getElementById("user_tags").value
+            console.log("user_tags : " + user_tags + ":" + Date.now())
+            if (user_tags != "") {
+                user_tags = user_tags.split(':')
+                for (const tag of user_tags) {
+                    console.log("tag1 : " + tag);
+                    parent.right_frame.document.getElementById("user_tag_" + tag).checked = true
+                };
+            };
+            user_tags = parent.right_frame.document.getElementById('new_tag').value
+            console.log("new_tag : " + user_tags + ":")
+            if (user_tags != "") {
+                user_tags = user_tags.split(',')
+                for (const tag of user_tags) {
+                    console.log("tag2 : " + tag);
+                    parent.right_frame.document.getElementById("user_tag_" + tag).checked = true
+                };
+            };
+        };
+    }, 3000);
 }

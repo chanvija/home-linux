@@ -21,7 +21,7 @@
                     <input name="pic_count" value=" of 0" id="pic_count" STYLE="color: white; width: 55px; background-color: black; border-color: black; border-width: 0px; border-bottom: black;"/> </p>
                 </div>
             </div>
-            <div class="g r2" style="color: white;">
+            <div id="info" class="g r2" style="color: white;">
             Update tags for this picture
                 <p><input type = "hidden" id="filter_type" name="filter_type" value="file_single" /></p>
                 <p><input type = "hidden" id="rotate_value" name="rotate_value" value=90 /></p>
@@ -35,6 +35,8 @@
                 <input type="checkbox" id="replace_tag" name="replace_tag" value="replace_tag">
                 <label for "replace_tag" style="color: white; font-size: 18px; text-align: left;">replace</label>
                 <p><button type="button" id="button_update_tag_next" onclick=update_tag_next()>Submit+Next</button>
+                <button type="button" id="button_clear_new_tag_clear" onclick=clear_new_tag()>Clear</button>
+                <button type="button" id="button_update_tag_clear" onclick=update_tag_clear()>Clear current tags</button>
                 <button type="button" id="button_update_tag_delete" onclick=update_tag_delete()>Delete</button>
                 <button type="button" id="button_update_tag" onclick=update_tag()>Submit</button>
                 <button type="button" id="button_rotate_image" onclick=rotate_image()>Rotate Image</button></p>
