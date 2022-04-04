@@ -197,7 +197,15 @@ def get_row():
     elif request.method == 'POST':
         data = request.get_json()        
         print(json_util.dumps(data, indent=4))
-        tag = data['tag'].lower()
+        if not isinstance(data['tag'],list):
+            if ',' in data['tag']:
+                tag_list = data['tag'].lower().split(',')
+                tag = ''
+            else:
+                tag = data['tag']
+        else:
+            tag_list = data['tag']
+            tag = ''
         show_deleted = data['show_deleted'].lower()
         count = data['count']
         offset = data['offset']
@@ -238,8 +246,16 @@ def get_row():
                 cmd = f'SELECT filename,tags,user_tags FROM collection where (tags LIKE "%{tag}%" OR user_tags LIKE "%{tag}%") AND type LIKE "%photo%" LIMIT {count}  OFFSET {offset}'
                 cmd2 = f'SELECT count(*) FROM collection where (tags LIKE "%{tag}%" OR user_tags LIKE "%{tag}%") AND type LIKE "%photo%"'
             else:
-                cmd = f'SELECT filename,tags,user_tags FROM collection where (tags LIKE "%{tag}%" OR user_tags LIKE "%{tag}%") AND type LIKE "%photo%" and user_tags NOT LIKE "%delete%" LIMIT {count}  OFFSET {offset}'
-                cmd2 = f'SELECT count(*) FROM collection where (tags LIKE "%{tag}%" OR user_tags LIKE "%{tag}%") AND type LIKE "%photo%" and user_tags NOT LIKE "%delete%"'
+                tag_cmd = ''
+                for tag in tag_list:
+                    if tag_cmd == '':
+                        tag_cmd += f'(tags like "%{tag}%" OR user_tags LIKE "%{tag}%") '
+                    else:
+                        tag_cmd += f'AND (tags like "%{tag}%" OR user_tags LIKE "%{tag}%")'
+                #cmd = f'SELECT filename,tags,user_tags FROM collection where (tags LIKE "%{tag}%" OR user_tags LIKE "%{tag}%") AND type LIKE "%photo%" and user_tags NOT LIKE "%delete%" LIMIT {count}  OFFSET {offset}'
+                #cmd2 = f'SELECT count(*) FROM collection where (tags LIKE "%{tag}%" OR user_tags LIKE "%{tag}%") AND type LIKE "%photo%" and user_tags NOT LIKE "%delete%"'
+                cmd = f'SELECT filename,tags,user_tags FROM collection where {tag_cmd} AND type LIKE "%photo%" and user_tags NOT LIKE "%delete%" LIMIT {count}  OFFSET {offset}'
+                cmd2 = f'SELECT count(*) FROM collection where {tag_cmd} AND type LIKE "%photo%" and user_tags NOT LIKE "%delete%"'
         print(cmd)
         myCursor.execute(cmd)
         temp = myCursor.fetchall()

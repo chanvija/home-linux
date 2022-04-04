@@ -54,8 +54,15 @@ function change_image(source) {
         }
         changeImg('date', date_select, '3', '0', checked)
     } else if (source == "specific_tag") {
-        tag_select = document.getElementById('specific_tag').value
-        changeImg('default', tag_select, '3', '0', 'false')
+        var selected = []
+        for (var option of document.getElementById('specific_tag').options) {
+            if (option.selected) {
+                selected.push(option.value)
+            }
+        }
+        // tag_select = document.getElementById('specific_tag').value
+        console.log(selected)
+        changeImg('default', selected, '3', '0', 'false')
     }
 }
 function test_show_picture(img,tags)
@@ -283,6 +290,7 @@ function changeImg(query_type, tag, count, offset, ignore_year)
                     new_next_offset = Number("0");
                 }
 
+
                 $("#prev_button").attr("onclick", 'changeImg("' + query_type + '", "' + tag + '", ' + count + ', ' + new_prev_offset + ', ' + ignore_year + ")")
                 $("#next_button").attr("onclick", 'changeImg("' + query_type + '", "' + tag + '", ' + count + ', ' + new_next_offset + ', ' + ignore_year + ")")
 
@@ -330,7 +338,6 @@ function changeImg(query_type, tag, count, offset, ignore_year)
         xhr.send()
         xhr.onload = function() {
             var data = JSON.parse(this.responseText);
-            console.log(data['tag_list']);
             var text_len = 0
             for (const tag of data['tag_list']) {
                 var element = parent.right_frame.document.getElementById("user_tag_" + tag);

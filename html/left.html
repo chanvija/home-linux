@@ -3,13 +3,16 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="Pragma" content="no-cache">
-        <script language="JavaScript" type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script language="JavaScript" type="text/javascript" src="js/jquery-3.6.0.min.js"></script>
         <script language="JavaScript" type="text/javascript" src="js/jquery.rotate.1-1.js"></script>
-        <script src='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js'></script>
+        <script language="JavaScript" type="text/javascript" src='js/jquery-ui.min.js'></script>
         <script language="JavaScript" type="text/javascript" src="js/cdj-funcs.js"></script>
         <link rel="stylesheet" href="css/cdj.css" type="text/css">
+        <script src="js/jquery.min.js"></script>
+        <script src="js/selectize.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.min.css" integrity="sha256-ze/OEYGcFbPRmvCnrSeKbRTtjG4vGLHXgOqsyLFTRjg=" crossorigin="anonymous" />
         <link href="css/font-awesome.min.css" type="text/css">
-        <link href='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css'>
+        <link href='js/jquery-ui.min.css'>
     </head>
     <body>
         <div class="left_grid">
@@ -20,8 +23,8 @@
                 <br><br><br>
                 <div class="tag_container" style="color: white; font-size: 18px; text-align: left;">
                         <p> 
-                            <label for="specific_tag">Choose a photo tag</label>
-                            <select name="specific_tag" id="specific_tag" onchange="change_image('specific_tag')">
+                            <label for="specific_tag">Choose photo tag(s)</label>
+                            <select name="specific_tag" id="specific_tag" onchange="change_image('specific_tag')" multiple>
                                 <option value="" selected>Select one</option>
                             </select>
                         </p>
@@ -52,7 +55,6 @@
        </div>
        <script>
             $(document).ready(function () {
-
                 var tag_dropdown = document.getElementById('specific_tag')
                 var url = "http://192.168.1.13:8081/get_unique_tags";
                 var xhr = new XMLHttpRequest();
@@ -72,11 +74,17 @@
                     }
                     var tags = tag_list.split(",");
                     for (var i = 0;i <tags.length;i++) {
-                        var option = document.createElement("option")
-                        option.innerHTML = tags[i]
-                        option.value = tags[i]
-                        tag_dropdown.appendChild(option)
+                        if (tags[i] != '') {
+                            var option = document.createElement("option")
+                            option.innerHTML = tags[i]
+                            option.value = tags[i]
+                            tag_dropdown.appendChild(option)
+                        }
                     }
+                    console.log('done')
+                    $('select').selectize({
+                        sortField: 'text'
+                    });
                 };
             });
         </script>
