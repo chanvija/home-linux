@@ -14,7 +14,6 @@ function append_tag(cb) {
 }
 function show_picture(img)
 {
-    console.log("show start : " + Date.now())
     $("<img/>").attr("src", img).on("load",function(){
         s = {w:this.width, h:this.height};   
         f = 300/s.w
@@ -24,7 +23,6 @@ function show_picture(img)
         
     }); 
     // $("#right").load("2.html")   
-    console.log("show end : " + Date.now())
 }
 function pic_num_focus() {
     parent.right_frame.document.getElementById('pic_num').value = ""
@@ -61,7 +59,6 @@ function change_image(source) {
             }
         }
         // tag_select = document.getElementById('specific_tag').value
-        console.log(selected)
         changeImg('default', selected, '3', '0', 'false')
     }
 }
@@ -199,7 +196,6 @@ function changeImg(query_type, tag, count, offset, ignore_year)
     x.send()
     
     d = JSON.parse(x.responseText);
-    console.log(d)
     var path_prefix = d['dir_prefix']
 
     var url = "http://192.168.1.13:8081/get_row";
@@ -241,7 +237,6 @@ function changeImg(query_type, tag, count, offset, ignore_year)
     }
     xhr.onload = function() {
         var data = JSON.parse(this.responseText);
-        console.log(data);
         
         prev = "#";
         next = "#";
@@ -276,9 +271,7 @@ function changeImg(query_type, tag, count, offset, ignore_year)
 
                 _width = s.w * m
                 _height = s.h * m    
-                console.log("show start : " + Date.now())
                 $("#show_image").html($("<img>").attr("src", img).width(_width).height(_height));
-                console.log("show end : " + Date.now())
 
                 new_prev_offset = Number(offset) - Number("1");
                 if (new_prev_offset < 0) {
@@ -294,9 +287,14 @@ function changeImg(query_type, tag, count, offset, ignore_year)
                 $("#prev_button").attr("onclick", 'changeImg("' + query_type + '", "' + tag + '", ' + count + ', ' + new_prev_offset + ', ' + ignore_year + ")")
                 $("#next_button").attr("onclick", 'changeImg("' + query_type + '", "' + tag + '", ' + count + ', ' + new_next_offset + ', ' + ignore_year + ")")
 
+                console.log(data);
                 parent.right_frame.document.getElementById('filter').value = data['file_list'][0][0]
                 parent.right_frame.document.getElementById('system_tags').value = data['file_list'][0][1]
                 parent.right_frame.document.getElementById('user_tags').value = data['file_list'][0][2]
+                parent.right_frame.document.getElementById('latitude').value = data['file_list'][0][3]
+                parent.right_frame.document.getElementById('longitude').value = data['file_list'][0][4]
+                parent.right_frame.document.getElementById('location').value = data['file_list'][0][5]
+                parent.right_frame.document.getElementById('file_size').value = data['file_list'][0][6] + data['file_list'][0][7]
                 parent.right_frame.document.getElementById('pic_num').value =  current_pic_num 
                 parent.right_frame.document.getElementById('pic_count').value =  " of " + data['row_count'] 
                 parent.right_frame.document.getElementById('message').value = ""
@@ -321,6 +319,10 @@ function changeImg(query_type, tag, count, offset, ignore_year)
             parent.right_frame.document.getElementById('pic_count').value =  " of " + data['row_count'] 
             parent.right_frame.document.getElementById('system_tags').value = ''
             parent.right_frame.document.getElementById('user_tags').value = ''
+            parent.right_frame.document.getElementById('latitude').value = ''
+            parent.right_frame.document.getElementById('longitude').value = ''
+            parent.right_frame.document.getElementById('location').value = ''
+            parent.right_frame.document.getElementById('file_size').value = ''
             parent.right_frame.document.getElementById('message').value = ""
             parent.right_frame.document.getElementById('pic_num').oninput = ''
             parent.right_frame.document.getElementById('button_update_tag_next').onclick = ''
@@ -339,12 +341,14 @@ function changeImg(query_type, tag, count, offset, ignore_year)
         xhr.onload = function() {
             var data = JSON.parse(this.responseText);
             var text_len = 0
+            var checkbox_count = 0
             for (const tag of data['tag_list']) {
                 var element = parent.right_frame.document.getElementById("user_tag_" + tag);
                 new_tag = "user_tag_" + tag;
                 if (element == null || typeof(element) == 'undefined') {
-                    if ((text_len + tag.length) > 19) {
+                    if (((text_len + tag.length) > 19) || (checkbox_count >= 3)) {
                         text_len = 0;
+                        check_box_count = 0
                         var br = document.createElement('br');
                         container.appendChild(br);
                     }
@@ -354,6 +358,7 @@ function changeImg(query_type, tag, count, offset, ignore_year)
                     checkbox.value = tag;
                     checkbox.id = new_tag;
                     checkbox.name = new_tag;
+                    checkbox_count = checkbox_count + 1
                     label = document.createElement('label');
                     label.htmlFor = new_tag;
                     label.appendChild(document.createTextNode(tag));
@@ -366,20 +371,16 @@ function changeImg(query_type, tag, count, offset, ignore_year)
                 }
             };
             user_tags = parent.right_frame.document.getElementById("user_tags").value
-            console.log("user_tags : " + user_tags + ":" + Date.now())
             if (user_tags != "") {
                 user_tags = user_tags.split(':')
                 for (const tag of user_tags) {
-                    console.log("tag1 : " + tag);
                     parent.right_frame.document.getElementById("user_tag_" + tag).checked = true
                 };
             };
             user_tags = parent.right_frame.document.getElementById('new_tag').value
-            console.log("new_tag : " + user_tags + ":")
             if (user_tags != "") {
                 user_tags = user_tags.split(',')
                 for (const tag of user_tags) {
-                    console.log("tag2 : " + tag);
                     parent.right_frame.document.getElementById("user_tag_" + tag).checked = true
                 };
             };

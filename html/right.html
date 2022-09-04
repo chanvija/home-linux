@@ -22,14 +22,39 @@
                 </div>
             </div>
             <div id="info" class="g r2" style="color: white;">
-            Update tags for this picture
                 <p><input type = "hidden" id="filter_type" name="filter_type" value="file_single" /></p>
                 <p><input type = "hidden" id="rotate_value" name="rotate_value" value=90 /></p>
-                Filename
-                <p><input readonly name="filter" value="" id="filter" STYLE="color: white; width: 320px; background-color: black; border-color: black; border-width: 0px; border-bottom: black;" /></p>
-                Current tags
-                <p>System tags : <input readonly name="system_tags" value="" id="system_tags"  STYLE="color: white; width: 320px; background-color: black; border-color: black; border-width: 0px; border-bottom: black;" /></p>
-                <p>User tags   : <input readonly name="user_tags" value="" id="user_tags"  STYLE="color: white; width: 320px; background-color: black; border-color: black; border-width: 0px; border-bottom: black;" /></p>
+                <table>
+                    <tr>
+                        <td>Filename</td>
+                        <td><input readonly name="filter" value="" id="filter" STYLE="color: white; width: 320px; background-color: black; border-color: black; border-width: 0px; border-bottom: black;" /></td
+                    </tr>
+                    <tr>
+                        <td>Current tags</td>
+                        <td>System tags : <input readonly name="system_tags" value="" id="system_tags"  STYLE="color: white; width: 320px; background-color: black; border-color: black; border-width: 0px; border-bottom: black;" /></td>
+                    </tr>
+                    <tr>
+                        <td>User tags</td>
+                        <td><input readonly name="user_tags" value="" id="user_tags"  STYLE="color: white; width: 320px; background-color: black; border-color: black; border-width: 0px; border-bottom: black;" /></td>
+                    </tr>
+                    <tr>
+                        <td>Latitutde</td>
+                        <td><input readonly name="latitude" value="" id="latitude"  STYLE="color: white; width: 320px; background-color: black; border-color: black; border-width: 0px; border-bottom: black;" /></td>
+                    </tr>
+                    <tr>
+                        <td>Longitude</td>
+                        <td><input readonly name="longitude" value="" id="longitude"  STYLE="color: white; width: 320px; background-color: black; border-color: black; border-width: 0px; border-bottom: black;" /></td>
+                    </tr>
+                    <tr>
+                        <td>Location</td>
+                        <td><input readonly name="location" value="" id="location"  STYLE="color: white; width: 320px; background-color: black; border-color: black; border-width: 0px; border-bottom: black;" /></td>
+                    </tr>
+                    <tr>
+                        <td>File Size</td>
+                        <td><input readonly name="file_size" value="" id="file_size"  STYLE="color: white; width: 320px; background-color: black; border-color: black; border-width: 0px; border-bottom: black;" /></td>
+                    </tr>
+                </table>
+            Update tags for this picture
                 <p><input readonly name="message" value="" id="message" class="message_box" /></p>
                 <p><label float="left"> New Tag </label><input type = "text" name = "new_tag" value="" id="new_tag" class="text_box"/> comma separated</p>
                 <input type="checkbox" id="replace_tag" name="replace_tag" value="replace_tag">
